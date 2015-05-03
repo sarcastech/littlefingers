@@ -9,9 +9,10 @@ var applyProps = function(obj, key){
 		},
 		"set": function(val){
 			obj.props[key] = val;
-			obj.emit('change', obj.props[key]);
+			obj.emit('change', obj.props);
 			obj.emit('change:' + key, obj.props[key]);
-		}
+		},
+		"enumerable": true
 	});
 };
 
@@ -26,6 +27,11 @@ var Foo = function(opts){
 };
 util.inherits(Foo, EventEmitter);
 
+Foo.prototype.loop = function(callback){
+	for(var key in this.props){
+		callback(this.props[key], key, this);
+	}
+};
 
 var foo = new Foo({
 	'bar': 1,
@@ -33,7 +39,7 @@ var foo = new Foo({
 });
 
 foo.on('change', function(val){
-	console.log('new val = ', this.props);
+	console.log('new val = ', val);
 })
 .on('change:baz', function(val){
 	console.log('whoah - baz has been changed to ', val);
@@ -44,3 +50,7 @@ console.log('loggin bar ', foo.bar);
 
 foo.baz = 'blue';
 console.log('loggin baz ', foo.baz);
+
+foo.loop(function(val){
+	console.log('looped val is ', val);
+});
