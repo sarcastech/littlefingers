@@ -18,7 +18,6 @@ var applyProps = function(obj, key){
 
 var Foo = function(opts){
 	EventEmitter.call(this);
-	var _goo = 'foo';
 	this.props = {};
 	for(var item in opts){
 		this.props[item] = opts[item];
