@@ -40,6 +40,7 @@ foo.on('change:bar', function(val){
 	console.log('WooHoo! Booz updated ', val);
 });
 
+console.log('current bar ', foo.bar);
 foo.bar = 2;
-foo.booz.push(3);
+foo.booz.push({'one': 1});
 foo.baz = 'blue';
