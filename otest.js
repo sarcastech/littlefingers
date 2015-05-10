@@ -2,7 +2,10 @@ var Owrap = require('./Owrap');
 
 var o = {
 	"foo": {
-		"bar": "baz"
+		"bar": 1,
+		"yoda": {
+			"force": 2
+		}
 	},
 	"meh": {
 		"beh": 3
@@ -21,11 +24,15 @@ newObj.on('change:foo', function(data){
 .on('change:grr', function(data){
 	console.log('grr is now ', data);
 })
-.on('change:bar', function(data){
+.on('change:foo:bar', function(data){
 	console.log('bar is ', data);
+})
+.on('change:foo:yoda', function(data){
+	console.log('LUUUUKE ', data);
 });
 
-// newObj.foo.bar = 'bitch';
-newObj.foo = {'yuck': 'ew'};
+newObj.foo.bar = 'rawr';
+newObj.foo.yoda  = 'growl';
 newObj.meh = 'i am a string';
 newObj.grr = [1,2,3];
+newObj.foo = {'yuck': 'ew'};
