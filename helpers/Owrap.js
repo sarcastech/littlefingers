@@ -31,7 +31,7 @@ var scanObj = function(obj, target){
             'get': getter.call(self, obj[item]),
             'set': setter.call(self)
         });
-        if(typeof obj[item] !== 'number'){
+        if(typeof obj[item] !== 'number' && obj[item].constructor !== Array){
            scanObj.call(self, obj[item], target[item]);
         } else {
             paths.pop();
