@@ -8,7 +8,7 @@ var o = {
         }
     },
     "meh": {
-        "beh": 3
+        "beh": 'giggle'
     },
     "grr": [1]
 };
@@ -35,5 +35,6 @@ newObj.foo.bar = 'rawr';
 newObj.foo.yoda  = 'growl';
 newObj.meh = 'i am a string';
 newObj.grr.push(99);
+newObj.grr[0] = 'foo';
 newObj.grr.pop();
 newObj.foo = {'yuck': 'ew'};

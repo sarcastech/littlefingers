@@ -2,7 +2,7 @@ var helpers = require('./helpers');
 
 var foo = helpers.wrapLiteral({
     'bar': 1,
-    'baz': 10,
+    'baz': 'bing',
     'booz': [1]
 });
 

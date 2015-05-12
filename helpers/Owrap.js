@@ -7,7 +7,7 @@ var getter = function(obj){
     var self = this;
     var path = paths.join('-');
     var route = paths.join(':');
-    if (obj.constructor === Array){
+    if (Array.isArray(obj)){
         obj = new Awrap(obj);
         obj.on('change', function(obj){
             self.emit('change:' + route, obj);
@@ -39,7 +39,7 @@ var scanObj = function(obj, target){
             'get': getter.call(self, obj[item]),
             'set': setter.call(self)
         });
-        if(typeof obj[item] !== 'number' && obj[item].constructor !== Array){
+        if(typeof obj[item] === 'object' && !Array.isArray(obj[item])){
            scanObj.call(self, obj[item], target[item]);
         } else {
             paths.pop();
