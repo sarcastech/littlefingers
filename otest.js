@@ -34,5 +34,6 @@ newObj.on('change:foo', function(data){
 newObj.foo.bar = 'rawr';
 newObj.foo.yoda  = 'growl';
 newObj.meh = 'i am a string';
-newObj.grr = [1,2,3];
+newObj.grr.push(99);
+newObj.grr.pop();
 newObj.foo = {'yuck': 'ew'};

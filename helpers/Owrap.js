@@ -1,10 +1,18 @@
 var EventEmitter = require('events').EventEmitter;
+var Awrap = require('./Awrap');
 var util = require('util');
 var paths = [];
 
 var getter = function(obj){
     var self = this;
     var path = paths.join('-');
+    var route = paths.join(':');
+    if (obj.constructor === Array){
+        obj = new Awrap(obj);
+        obj.on('change', function(obj){
+            self.emit('change:' + route, obj);
+        });
+    }
     self._obj[path] = obj;
     return function(){
         return self._obj[path];
