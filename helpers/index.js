@@ -22,19 +22,3 @@ exports.wrapArray = function(obj, key, orig){
 exports.wrapLiteral = function(obj){
     return new Owrap(obj);
 };
-
-exports.applyProps = function(obj, key){
-    Object.defineProperty(obj, key, {
-        "get": function(){
-            return obj._obj[key];
-        },
-        "set": function(val){
-            obj._obj[key] = val;
-            obj.emit('change', obj._obj);
-            obj.emit('change:' + key, obj._obj[key]);
-        },
-        "enumerable": true,
-        'writeable': true,
-        'configurable': true
-    });
-};
