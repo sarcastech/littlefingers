@@ -18,7 +18,7 @@ foo.on('change:bar', function(val){
     console.log('foo.booz array has been updated with ', val);
 });
 
-console.log('current bar ', foo.bar);
+// changing property values will trigger events listened for above
 foo.bar = 2;
 foo.booz.push(66);
 foo.baz.bing = 'blue';
