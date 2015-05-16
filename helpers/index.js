@@ -1,5 +1,6 @@
 var Awrap = require('./Awrap');
-var Owrap = require('./Owrap')
+var Owrap = require('./Owrap');
+var Ewrap = require('./Ewrap');
 
 exports.wrapArray = function(obj, key, orig){
     var self = obj;
@@ -18,6 +19,10 @@ exports.wrapArray = function(obj, key, orig){
         self.emit('change:'+key, data);
     });
 };
+
+exports.wrapElement = function(el){
+    return new Ewrap(el);
+}
 
 exports.wrapLiteral = function(obj){
     return new Owrap(obj);
