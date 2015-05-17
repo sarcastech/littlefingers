@@ -1,23 +1,41 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var lf = require('../helpers');
-var newInputs = ['hello', 'howdy', 'yo'];
 
-var data = {
+module.exports = lf.wrapLiteral({
     'content': 'This is some content'
-};
-var model = lf.wrapLiteral(data);
-model.on('change', function(model){
-    console.log('model data is now set to ', model.content);
 });
+},{"../helpers":7}],2:[function(require,module,exports){
+var lf = require('../helpers');
 
-var element = document.querySelector('#foo');
-var div = lf.wrapElement(element);
-div.bindTo(model);
-
-document.addEventListener('click', function(ev){
-    model.content = newInputs[Math.floor(Math.random() * newInputs.length)];
+module.exports = lf.wrapLiteral({
+    'value': ''
 });
-},{"../helpers":5}],2:[function(require,module,exports){
+},{"../helpers":7}],3:[function(require,module,exports){
+var lf = require('../helpers');
+var divModel = require('./divModel');
+var inputModel = require('./inputModel');
+
+var greetings = ['hello', 'howdy', 'yo'];
+
+lf.wrapElement(document.querySelector('#box'))
+    .bindTo(divModel)
+    .click(function(){
+        // clicking on the div will randomly update the inputModel's value
+        // note that since this update is not being listened to in our case,
+        // the div does not get updated
+        inputModel.value = greetings[Math.floor(Math.random() * greetings.length)];
+    });
+
+lf.wrapElement(document.querySelector('#txt'))
+    .bindTo(inputModel)
+    .on('change:keyup', function(data){
+        // entering text to the input field will
+        // update the divModel (below), which will in turn
+        // update the div's content
+        divModel.content = data;
+    });
+
+},{"../helpers":7,"./divModel":1,"./inputModel":2}],4:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
@@ -91,7 +109,7 @@ Awrap.prototype.toString = function(){
 };
 
 module.exports = Awrap;
-},{"events":6,"util":10}],3:[function(require,module,exports){
+},{"events":8,"util":12}],5:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
@@ -99,21 +117,38 @@ var Ewrap = function(el){
     EventEmitter.call(this);
     this.el = el;
     this.model = {};
+
+    this.el.onkeyup = function(data){
+        this.model.value = this.el.value;
+        this.emit('change:keyup', this.el.value);
+    }.bind(this);
 };
 util.inherits(Ewrap, EventEmitter);
 
 Ewrap.prototype.bindTo = function (model){
     this.model = model;
-    this.model.on('change:content', this.innerHTML.bind(this));
+    this.model.on('change:content', this.html.bind(this));
+    this.model.on('change:value', function(data){
+        this.el.value = data;
+    }.bind(this));
+    return this;
 };
 
-Ewrap.prototype.innerHTML = function(input){
+Ewrap.prototype.click = function(callback){
+    this.el.onclick = function(event){
+        this.emit('click', event);
+        callback(event);
+    }.bind(this);
+};
+
+Ewrap.prototype.html = function(input){
     this.el.innerHTML = input;
     this.emit('change:content', input);
+    return this;
 };
 
 module.exports = Ewrap;
-},{"events":6,"util":10}],4:[function(require,module,exports){
+},{"events":8,"util":12}],6:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 var Awrap = require('./Awrap');
 var util = require('util');
@@ -173,7 +208,7 @@ var Owrap = function(o){
 util.inherits(Owrap, EventEmitter);
 
 module.exports = Owrap;
-},{"./Awrap":2,"events":6,"util":10}],5:[function(require,module,exports){
+},{"./Awrap":4,"events":8,"util":12}],7:[function(require,module,exports){
 var Awrap = require('./Awrap');
 var Owrap = require('./Owrap');
 var Ewrap = require('./Ewrap');
@@ -204,7 +239,7 @@ exports.wrapLiteral = function(obj){
     return new Owrap(obj);
 };
 
-},{"./Awrap":2,"./Ewrap":3,"./Owrap":4}],6:[function(require,module,exports){
+},{"./Awrap":4,"./Ewrap":5,"./Owrap":6}],8:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -507,7 +542,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -532,7 +567,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -620,14 +655,14 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -1217,4 +1252,4 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":9,"_process":8,"inherits":7}]},{},[1]);
+},{"./support/isBuffer":11,"_process":10,"inherits":9}]},{},[3]);
