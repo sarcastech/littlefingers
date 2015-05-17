@@ -2,16 +2,28 @@ var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
 var Ewrap = function(el){
+
+    if(typeof el === 'string' && el[0] === '#'){
+        el = document.querySelector(el);
+    }
+
     EventEmitter.call(this);
     this.el = el;
     this.model = {};
-
-    this.el.onkeyup = function(data){
-        this.model.value = this.el.value;
-        this.emit('change:keyup', this.el.value);
-    }.bind(this);
 };
 util.inherits(Ewrap, EventEmitter);
+
+Ewrap.prototype.bindToModel = function(obj){
+    for(var key in obj){
+        this.on('change:' + key, function(data){
+            obj[key][key] = data;
+        }.bind(this));
+        obj[key].on('change:' + key, function(data){
+            this.el[key] = data;
+        }.bind(this));
+    }
+    return this;
+};
 
 Ewrap.prototype.bindTo = function (model){
     this.model = model;
@@ -27,6 +39,15 @@ Ewrap.prototype.click = function(callback){
         this.emit('click', event);
         callback(event);
     }.bind(this);
+    return this;
+};
+
+Ewrap.prototype.keyup = function(callback){
+    this.el.onkeyup = function(data){
+        callback.call(this, data);
+        this.emit('keyup', this.el.value);
+    }.bind(this);
+    return this;
 };
 
 Ewrap.prototype.html = function(input){

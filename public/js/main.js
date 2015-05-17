@@ -1,41 +1,33 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var lf = require('../helpers');
-
-module.exports = lf.wrapLiteral({
-    'content': 'This is some content'
-});
-},{"../helpers":7}],2:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/home/d/projects/github/littlefingers/client/inputModel.js":[function(require,module,exports){
 var lf = require('../helpers');
 
 module.exports = lf.wrapLiteral({
     'value': ''
 });
-},{"../helpers":7}],3:[function(require,module,exports){
+},{"../helpers":"/home/d/projects/github/littlefingers/helpers/index.js"}],"/home/d/projects/github/littlefingers/client/main.js":[function(require,module,exports){
 var lf = require('../helpers');
-var divModel = require('./divModel');
 var inputModel = require('./inputModel');
 
-var greetings = ['hello', 'howdy', 'yo'];
-
-lf.wrapElement(document.querySelector('#box'))
-    .bindTo(divModel)
+lf.wrapElement('#inputBtn')
     .click(function(){
-        // clicking on the div will randomly update the inputModel's value
-        // note that since this update is not being listened to in our case,
-        // the div does not get updated
+        console.log('Input Model is ', inputModel._obj);
+    });
+
+lf.wrapElement('#box')
+    .click(function(){
+        var greetings = ['hello', 'howdy', 'yo'];
         inputModel.value = greetings[Math.floor(Math.random() * greetings.length)];
     });
 
-lf.wrapElement(document.querySelector('#txt'))
-    .bindTo(inputModel)
-    .on('change:keyup', function(data){
-        // entering text to the input field will
-        // update the divModel (below), which will in turn
-        // update the div's content
-        divModel.content = data;
+lf.wrapElement('#txt')
+    .bindToModel({
+        'value': inputModel
+    })
+    .keyup(function(data){
+        this.emit('change:value', data.target.value);
     });
 
-},{"../helpers":7,"./divModel":1,"./inputModel":2}],4:[function(require,module,exports){
+},{"../helpers":"/home/d/projects/github/littlefingers/helpers/index.js","./inputModel":"/home/d/projects/github/littlefingers/client/inputModel.js"}],"/home/d/projects/github/littlefingers/helpers/Awrap.js":[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
@@ -109,21 +101,33 @@ Awrap.prototype.toString = function(){
 };
 
 module.exports = Awrap;
-},{"events":8,"util":12}],5:[function(require,module,exports){
+},{"events":"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/events/events.js","util":"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/util/util.js"}],"/home/d/projects/github/littlefingers/helpers/Ewrap.js":[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
 var Ewrap = function(el){
+
+    if(typeof el === 'string' && el[0] === '#'){
+        el = document.querySelector(el);
+    }
+
     EventEmitter.call(this);
     this.el = el;
     this.model = {};
-
-    this.el.onkeyup = function(data){
-        this.model.value = this.el.value;
-        this.emit('change:keyup', this.el.value);
-    }.bind(this);
 };
 util.inherits(Ewrap, EventEmitter);
+
+Ewrap.prototype.bindToModel = function(obj){
+    for(var key in obj){
+        this.on('change:' + key, function(data){
+            obj[key][key] = data;
+        }.bind(this));
+        obj[key].on('change:' + key, function(data){
+            this.el[key] = data;
+        }.bind(this));
+    }
+    return this;
+};
 
 Ewrap.prototype.bindTo = function (model){
     this.model = model;
@@ -139,6 +143,15 @@ Ewrap.prototype.click = function(callback){
         this.emit('click', event);
         callback(event);
     }.bind(this);
+    return this;
+};
+
+Ewrap.prototype.keyup = function(callback){
+    this.el.onkeyup = function(data){
+        callback.call(this, data);
+        this.emit('keyup', this.el.value);
+    }.bind(this);
+    return this;
 };
 
 Ewrap.prototype.html = function(input){
@@ -148,7 +161,7 @@ Ewrap.prototype.html = function(input){
 };
 
 module.exports = Ewrap;
-},{"events":8,"util":12}],6:[function(require,module,exports){
+},{"events":"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/events/events.js","util":"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/util/util.js"}],"/home/d/projects/github/littlefingers/helpers/Owrap.js":[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter;
 var Awrap = require('./Awrap');
 var util = require('util');
@@ -208,7 +221,7 @@ var Owrap = function(o){
 util.inherits(Owrap, EventEmitter);
 
 module.exports = Owrap;
-},{"./Awrap":4,"events":8,"util":12}],7:[function(require,module,exports){
+},{"./Awrap":"/home/d/projects/github/littlefingers/helpers/Awrap.js","events":"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/events/events.js","util":"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/util/util.js"}],"/home/d/projects/github/littlefingers/helpers/index.js":[function(require,module,exports){
 var Awrap = require('./Awrap');
 var Owrap = require('./Owrap');
 var Ewrap = require('./Ewrap');
@@ -239,7 +252,7 @@ exports.wrapLiteral = function(obj){
     return new Owrap(obj);
 };
 
-},{"./Awrap":4,"./Ewrap":5,"./Owrap":6}],8:[function(require,module,exports){
+},{"./Awrap":"/home/d/projects/github/littlefingers/helpers/Awrap.js","./Ewrap":"/home/d/projects/github/littlefingers/helpers/Ewrap.js","./Owrap":"/home/d/projects/github/littlefingers/helpers/Owrap.js"}],"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/events/events.js":[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -542,7 +555,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],9:[function(require,module,exports){
+},{}],"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/inherits/inherits_browser.js":[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -567,7 +580,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],10:[function(require,module,exports){
+},{}],"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js":[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -655,14 +668,14 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],11:[function(require,module,exports){
+},{}],"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/util/support/isBufferBrowser.js":[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],12:[function(require,module,exports){
+},{}],"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/util/util.js":[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -1252,4 +1265,4 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":11,"_process":10,"inherits":9}]},{},[3]);
+},{"./support/isBuffer":"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/util/support/isBufferBrowser.js","_process":"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js","inherits":"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/inherits/inherits_browser.js"}]},{},["/home/d/projects/github/littlefingers/client/main.js"]);
