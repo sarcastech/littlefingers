@@ -1,3 +1,4 @@
+'use strict';
 var helpers = require('./helpers');
 
 var foo = helpers.wrapLiteral({
@@ -8,13 +9,13 @@ var foo = helpers.wrapLiteral({
     'booz': [1]
 });
 
-foo.on('change:bar', function(val){
+foo.on('change:bar', (val) => {
     console.log('foo.bar has changed to = ', val);
 })
-.on('change:baz:bing', function(val){
+.on('change:baz:bing', (val) => {
     console.log('foo.baz.bing has changed to ', val);
 })
-.on('change:booz', function(val){
+.on('change:booz', (val) => {
     console.log('foo.booz array has been updated with ', val);
 });
 

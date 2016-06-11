@@ -1,59 +1,55 @@
-var EventEmitter = require('events').EventEmitter;
-var Awrap = require('./Awrap');
-var util = require('util');
-var paths = [];
+'use strict';
+const EVENT_EMITTER = require('events').EventEmitter;
+const UTIL = require('util');
+const AWRAP = require('./Awrap');
+const PATHS = [];
 
-var getter = function(obj){
-    var self = this;
-    var path = paths.join('-');
-    var route = paths.join(':');
+let getter = function(obj) {
+    let path = PATHS.join('-');
+    let route = PATHS.join(':');
     if (Array.isArray(obj)){
-        obj = new Awrap(obj);
-        obj.on('change', function(obj){
-            self.emit('change:' + route, obj);
+        obj = new AWRAP(obj);
+        obj.on('change', (obj) => {
+            this.emit('change:' + route, obj);
         });
     }
-    self._obj[path] = obj;
-    return function(){
-        return self._obj[path];
+    this._obj[path] = obj;
+    return () => {
+        return this._obj[path];
     };
 };
 
-var setter = function(obj){
-    var self = this;
-    var ev = paths.join(':');
-    var path = paths.join('-');
-    return function(val){
-        self._obj[path] = val;
-        self.emit('change:' + ev, self._obj[path]);
-        self.emit('change', self);
+let setter = function (obj) {
+    let ev = PATHS.join(':');
+    let path = PATHS.join('-');
+    return (val) => {
+        this._obj[path] = val;
+        this.emit('change:' + ev, this._obj[path]);
+        this.emit('change', this._obj);
     };
 }
 
-var scanObj = function(obj, target){
-    var self = this;
-
-    for(var item in obj){
-        paths.push(item);
+let scanObj = function (obj, target) {
+    for(let item in obj) {
+        PATHS.push(item);
         Object.defineProperty(target, item, {
-            'get': getter.call(self, obj[item]),
-            'set': setter.call(self)
+            'get': getter.call(this, obj[item]),
+            'set': setter.call(this)
         });
         if(typeof obj[item] === 'object' && !Array.isArray(obj[item])){
-           scanObj.call(self, obj[item], target[item]);
+           scanObj.call(this, obj[item], target[item]);
         } else {
-            paths.pop();
+            PATHS.pop();
         }
     }
-    paths.pop();
+    PATHS.pop();
 }
 
-var Owrap = function(o){
-    EventEmitter.call(this);
+let Owrap = function (o) {
+    EVENT_EMITTER.call(this);
     this._obj = {};
-
     scanObj.call(this, o, this);
 };
-util.inherits(Owrap, EventEmitter);
 
+UTIL.inherits(Owrap, EVENT_EMITTER);
 module.exports = Owrap;

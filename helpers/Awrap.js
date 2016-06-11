@@ -1,9 +1,9 @@
-var EventEmitter = require('events').EventEmitter;
-var util = require('util');
+'use strict';
+const EVENT_EMITTER = require('events').EventEmitter;
+const UTIL = require('util');
 
-
-var Awrap = function(a){
-    EventEmitter.call(this);
+let Awrap = function(a){
+    EVENT_EMITTER.call(this);
     this._array = a;
 
     Object.defineProperty(this, 'length', {
@@ -12,61 +12,59 @@ var Awrap = function(a){
         }
     });
 };
-util.inherits(Awrap, EventEmitter);
+UTIL.inherits(Awrap, EVENT_EMITTER);
 
-// TODO - consider making some mutable array functions immutable
-// might be more inline with reactive streaming.
-Awrap.prototype.filter = function(callback){
+Awrap.prototype.filter = function (callback) {
     return this._array.filter(callback);
 };
 
-Awrap.prototype.forEach = function(callback){
+Awrap.prototype.forEach = function (callback) {
     this._array.forEach(callback);
 };
 
-Awrap.prototype.indexOf = function(str){
+Awrap.prototype.indexOf = function (str) {
     return this._array.indexOf(str);
 };
 
-Awrap.prototype.join = function(str){
+Awrap.prototype.join = function (str) {
     return this._array.join(str);
 }
 
-Awrap.prototype.map = function(callback){
+Awrap.prototype.map = function (callback) {
     return this._array.map(callback);
 };
 
-Awrap.prototype.pop = function(){
-    var el = this._array.pop();
+Awrap.prototype.pop = function () {
+    let el = this._array.pop();
     this.emit('change', this._array);
     return el;
 };
 
-Awrap.prototype.push = function(item){
-    var len = this._array.push(item);
+Awrap.prototype.push = function (item) {
+    let len = this._array.push(item);
     this.emit('change', this._array);
     return len;
 };
 
-Awrap.prototype.reverse = function(){
-    var reference = this._array.reverse();
+Awrap.prototype.reverse = function () {
+    let reference = this._array.reverse();
     this.emit('change', this._array);
     return reference;
 };
 
-Awrap.prototype.sort = function(){
-    var reference = this._array.sort();
+Awrap.prototype.sort = function () {
+    let reference = this._array.sort();
     this.emit('change', this._array);
     return reference;
 };
 
-Awrap.prototype.splice = function(){
-    var newArray = this._array.splice(arguments);
+Awrap.prototype.splice = function () {
+    let newArray = this._array.splice(arguments);
     this.emit('change', this._array);
     return newArray;
 };
 
-Awrap.prototype.toString = function(){
+Awrap.prototype.toString = function () {
     return this._array.toString();
 };
 
